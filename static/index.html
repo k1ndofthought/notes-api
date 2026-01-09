@@ -30,15 +30,16 @@
 <body>
 
 <h2>My Notes</h2>
-
+<textarea id="x-api-key" placeholder="X-API-Key" type="x-api-key"></textarea>
 <input id="title" placeholder="Title" />
+
 <textarea id="content" placeholder="Content"></textarea>
 <button onclick="addNote()">Add Note</button>
 
 <div id="notes"></div>
 
 <script>
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = window.location.origin;
 
 async function fetchNotes() {
     const res = await fetch(`${API_URL}/notes`);
@@ -60,18 +61,29 @@ async function fetchNotes() {
 }
 
 async function addNote() {
+    // 1. Get the values from the inputs
+    const apiKey = document.getElementById("x-api-key").value;
     const title = document.getElementById("title").value;
     const content = document.getElementById("content").value;
 
-    await fetch(`${API_URL}/notes`, {
+    // 2. Send the request with the X-API-Key header
+    const res = await fetch(`${API_URL}/notes`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+            "Content-Type": "application/json",
+            "X-API-Key": apiKey // This was missing!
+        },
         body: JSON.stringify({ title, content })
     });
 
+    if (res.status === 401) {
+        alert("Invalid or missing API key!");
+        return;
+    }
+
+    // 3. Clear inputs and refresh
     document.getElementById("title").value = "";
     document.getElementById("content").value = "";
-
     fetchNotes();
 }
 
@@ -81,6 +93,8 @@ async function deleteNote(id) {
     });
     fetchNotes();
 }
+
+
 
 fetchNotes();
 </script>
