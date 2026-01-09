@@ -76,3 +76,6 @@ def delete_note(note_id: int, db: Session = Depends(get_db)):
 
     db.delete(note)
     db.commit()
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
