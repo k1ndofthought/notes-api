@@ -2,7 +2,8 @@ from fastapi import FastAPI, HTTPException, Depends
 from sqlalchemy.orm import Session
 from typing import List
 from fastapi.middleware.cors import CORSMiddleware
-
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from database import SessionLocal, engine
 from models import Note as NoteModel
 from pydantic import BaseModel, Field
@@ -10,6 +11,7 @@ from pydantic import BaseModel, Field
 NoteModel.metadata.create_all(bind=engine)
 
 app = FastAPI()
+app.mount("/static", StaticFiles(directory="static"), name="static")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # for learning only
@@ -79,3 +81,6 @@ def delete_note(note_id: int, db: Session = Depends(get_db)):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+@app.get("/")
+def read_root():
+    return FileResponse("static/index.html")
